@@ -1,0 +1,17 @@
+# Enterprise RAG Framework Configuration
+vector_store:
+  type: "faiss"
+  index_path: "data/index"
+  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+
+retrieval:
+  type: "hybrid"
+  top_k: 5
+  use_reranker: false
+
+generation:
+  model: "gemini-2.5-flash"
+  provider: "gemini"
+  config:
+    temperature: 0.7
+    max_tokens: 500
