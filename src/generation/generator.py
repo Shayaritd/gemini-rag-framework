@@ -56,6 +56,8 @@ class ResponseGenerator:
                 return self._initialize_openai_client()
             elif provider == "anthropic":
                 return self._initialize_anthropic_client()
+            elif provider == "gemini":
+                return self._initialize_gemini_client()
             elif provider == "local":
                 return self._initialize_local_client()
             else:
@@ -120,6 +122,35 @@ class ResponseGenerator:
         except ImportError:
             logger.error(
                 "Failed to import Anthropic client. Install with: pip install anthropic"
+            )
+            return None
+
+    def _initialize_gemini_client(self) -> Any:
+        """
+        Initialize the Google Gemini client.
+
+        Returns:
+            Gemini client instance
+        """
+        try:
+            import google.generativeai as genai
+
+            # Get API key from config or environment
+            api_key = self.config.get("gemini_api_key")
+            if not api_key:
+                api_key = os.environ.get("GEMINI_API_KEY")
+
+            if not api_key:
+                logger.warning("Gemini API key not found in config or environment")
+                return None
+
+            genai.configure(api_key=api_key)
+            logger.info("Initialized Gemini client")
+            return genai
+
+        except ImportError:
+            logger.error(
+                "Failed to import Google Generative AI. Install with: pip install google-generativeai"
             )
             return None
 
@@ -275,6 +306,10 @@ class ResponseGenerator:
                 )
             elif provider == "anthropic":
                 response_text = self._generate_anthropic(
+                    prompt, model, temperature, max_tokens, streaming
+                )
+            elif provider == "gemini":
+                response_text = self._generate_gemini(
                     prompt, model, temperature, max_tokens, streaming
                 )
             elif provider == "local":
@@ -509,6 +544,75 @@ class ResponseGenerator:
                     temperature=temperature,
                 )
                 return response.content[0].text
+
+    def _generate_gemini(
+        self,
+        prompt: Dict[str, str],
+        model: str,
+        temperature: float,
+        max_tokens: int,
+        streaming: bool,
+    ) -> str:
+        """
+        Generate response using Google Gemini API.
+
+        Args:
+            prompt: Formatted prompt
+            model: Model name
+            temperature: Temperature parameter
+            max_tokens: Maximum tokens to generate
+            streaming: Whether to stream the response
+
+        Returns:
+            Generated text
+        """
+        if self.client is None:
+            raise ValueError("Gemini client not initialized")
+
+        # Combine system and user prompts for Gemini
+        full_prompt = ""
+        if prompt["system"]:
+            full_prompt += f"{prompt['system']}\n\n"
+        full_prompt += prompt["user"]
+
+        try:
+            # Get the Gemini model instance
+            gemini_model = self.client.GenerativeModel(model)
+
+            # Configure generation settings
+            generation_config = self.client.types.GenerationConfig(
+                max_output_tokens=max_tokens,
+                temperature=temperature,
+            )
+
+            if streaming:
+                # Stream the response
+                response = gemini_model.generate_content(
+                    full_prompt,
+                    generation_config=generation_config,
+                    stream=True,
+                )
+
+                # Collect chunks from stream
+                chunks = []
+                for chunk in response:
+                    if chunk.text:
+                        chunks.append(chunk.text)
+
+                return "".join(chunks)
+            else:
+                # Non-streaming response
+                response = gemini_model.generate_content(
+                    full_prompt,
+                    generation_config=generation_config,
+                    stream=False,
+                )
+
+                return response.text
+
+        except Exception as e:
+            logger.error("Error generating response with Gemini: %s", str(e))
+            raise
 
     def _generate_local(
         self,

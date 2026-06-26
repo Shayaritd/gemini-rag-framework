@@ -1,0 +1,33 @@
+
+Enterprise RAG Framework - Production-Grade Document Q&A System
+
+ABOUT:
+Enterprise RAG is a production-grade system for building document question-answering applications using Retrieval Augmented Generation.
+
+KEY FEATURES:
+1. Hybrid Retrieval: Combines BM25 keyword search with dense vector embeddings
+2. Multi-Format Support: PDF, DOCX, TXT, HTML, Markdown, CSV
+3. Smart Chunking: Recursive, sliding window, and semantic chunking
+4. Cross-Encoder Reranking: Improves retrieval quality
+5. Metadata Filtering: Filter by category, author, date, etc.
+6. Evaluation Suite: Precision, recall, faithfulness metrics
+7. Production Ready: Monitoring, logging, and security features
+
+SUPPORTED LLM PROVIDERS:
+- Google Gemini (free tier - 250 requests/day)
+- OpenAI (GPT-3.5, GPT-4)
+- Local models via Ollama (Llama, Qwen, Mistral)
+- Anthropic Claude
+
+BEST PRACTICES:
+- Use hybrid search for optimal results
+- Implement metadata filtering for access control
+- Monitor performance metrics regularly
+- Use caching for frequently asked questions
+
+USE CASES:
+- Customer support document Q&A
+- Internal knowledge base search
+- Technical documentation assistant
+- Legal document analysis
+- Research paper summarization
