@@ -7,7 +7,7 @@
 <img src="https://img.shields.io/badge/Python-3.10+-green?style=for-the-badge">
 
 <h3>
-Enterprise-Grade Retrieval Augmented Generation Framework
+*Enterprise-grade Document Q&A System powered by Google Gemini AI
 </h3>
 
 <p>
